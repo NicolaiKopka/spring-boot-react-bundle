@@ -56,7 +56,7 @@ public class KanbanController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Item> moveToPrev(@RequestBody Item item) {
         try {
-            return ResponseEntity.ok(kanbanService.addItem(item));
+            return ResponseEntity.ok(kanbanService.moveToPrev(item));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
