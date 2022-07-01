@@ -5,7 +5,6 @@ import com.example.demo.users.MyUserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.Collection;
 
 @Service
@@ -22,18 +21,38 @@ public class KanbanService {
         MyUser user = myUserRepo.findByUsername(username).orElseThrow();
         return kanbanProjectRepo.findAllByUserId(user.getId());
     }
-    public Item getItemById(String id) {
-        return kanbanProjectRepo.findById(id).orElseThrow();
+    public Item getItemById(String id, String username) {
+        MyUser currentUser = getCurrentUser(username);
+        Item searchItem = kanbanProjectRepo.findById(id).orElseThrow();
+        if(!searchItem.getUserId().equals(currentUser.getId())) {
+            throw new IllegalStateException("You are not the user of this item");
+        }
+        return searchItem;
     }
-    public Item editItem(Item item) {
+    public Item editItem(Item item, String username) {
+        MyUser currentUser = getCurrentUser(username);
+        Item searchItem = kanbanProjectRepo.findById(item.getId()).orElseThrow();
+        if(!searchItem.getUserId().equals(currentUser.getId())) {
+            throw new IllegalStateException("You are not the user of this item");
+        }
         return kanbanProjectRepo.save(item);
     }
-    public Item moveToNext(Item item){
+    public Item moveToNext(Item item, String username){
+        Item currentItem = getItemById(item.getId(), username);
+        MyUser currentUser = getCurrentUser(username);
+        if(!currentItem.getUserId().equals(currentUser.getId())) {
+            throw new IllegalStateException("You are not the user of this item");
+        }
         StatusEnum newStatus = item.getStatus().next();
         item.setStatus(newStatus);
         return kanbanProjectRepo.save(item);
     }
-    public Item moveToPrev(Item item){
+    public Item moveToPrev(Item item, String username){
+        Item currentItem = getItemById(item.getId(), username);
+        MyUser currentUser = getCurrentUser(username);
+        if(!currentItem.getUserId().equals(currentUser.getId())) {
+            throw new IllegalStateException("You are not the user of this item");
+        }
         StatusEnum newStatus = item.getStatus().prev();
         item.setStatus(newStatus);
         return kanbanProjectRepo.save(item);
@@ -53,11 +72,18 @@ public class KanbanService {
         item.setUserId(user.getId());
         return kanbanProjectRepo.save(item);
     }
-
-    public Item deleteItem(String id) {
+    public Item deleteItem(String id, String username) {
+        MyUser currentUser = getCurrentUser(username);
         Item itemToDelete = kanbanProjectRepo.findById(id).orElseThrow();
+        if(!itemToDelete.getUserId().equals(currentUser.getId())) {
+            throw new IllegalStateException("You are not the user of this item");
+        }
         kanbanProjectRepo.delete(itemToDelete);
         return itemToDelete;
     }
+    private MyUser getCurrentUser(String username) {
+        return myUserRepo.findByUsername(username).orElseThrow();
+    }
+
 
 }
