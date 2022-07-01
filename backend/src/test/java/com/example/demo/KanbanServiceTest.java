@@ -1,14 +1,10 @@
 package com.example.demo;
 
-import com.example.demo.users.MyUser;
 import com.example.demo.users.MyUserRepo;
-import org.apache.tomcat.jni.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +55,7 @@ class KanbanServiceTest {
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
 
-        kanbanService.moveToNext(item);
+        kanbanService.moveToNext(item, "testUser");
 
         Mockito.verify(kanbanProjectRepo).save(item);
         Assertions.assertThat(item.getStatus()).isEqualTo(StatusEnum.IN_PROGRESS);
@@ -76,7 +72,7 @@ class KanbanServiceTest {
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
 
-        kanbanService.moveToPrev(item);
+        kanbanService.moveToPrev(item, "testUser");
 
         Mockito.verify(kanbanProjectRepo).save(item);
         Assertions.assertThat(item.getStatus()).isEqualTo(StatusEnum.OPEN);
@@ -92,7 +88,7 @@ class KanbanServiceTest {
         MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
-        Assertions.assertThat(kanbanService.getItemById("1234")).isEqualTo(item);
+        Assertions.assertThat(kanbanService.getItemById("1234", "testUser")).isEqualTo(item);
     }
 
     @Test
@@ -106,7 +102,7 @@ class KanbanServiceTest {
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
 
-        kanbanService.editItem(item);
+        kanbanService.editItem(item, "testUser");
 
         Mockito.verify(kanbanProjectRepo).save(item);
 
