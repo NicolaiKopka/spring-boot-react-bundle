@@ -1,8 +1,11 @@
 package com.example.demo;
 
+import com.example.demo.login.LoginData;
+import com.example.demo.login.LoginResponse;
 import com.example.demo.users.MyUser;
 import com.example.demo.users.MyUserRepo;
 import com.example.demo.users.UserDTO;
+import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 
+import java.sql.SQLOutput;
 import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -26,11 +30,26 @@ class KanbanControllerIT {
     private MyUserRepo myUserRepo;
 
     @Test
-    void shouldRegisterNewUser() {
+    void shouldRegisterAndLoginUser() {
+        //register User
         MyUser newUser = new MyUser("testUser", "password", "password");
         ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
         Assertions.assertThat(registerResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        //login user with wrong credentials
+        LoginData wrongLoginUser = new LoginData("testUser", "wrongPassword");
+
+        ResponseEntity<LoginResponse> failedLoginResponse = restTemplate.postForEntity("/api/login", wrongLoginUser, LoginResponse.class);
+        Assertions.assertThat(failedLoginResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        Assertions.assertThat(failedLoginResponse.getBody()).isNull();
+
+        //login user
+        // TODO ask why cant login with register user data from above?
+        LoginData loginUser = new LoginData("testUser", "password");
+
+        ResponseEntity<LoginResponse> loginResponse = restTemplate.postForEntity("/api/login", loginUser, LoginResponse.class);
+        String token = loginResponse.getBody().getToken();
+        Assertions.assertThat(loginResponse.getBody().getToken()).isNotBlank();
     }
 
     @Test

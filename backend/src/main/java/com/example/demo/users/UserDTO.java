@@ -11,10 +11,12 @@ import java.util.List;
 public class UserDTO {
 
     private String username;
+    private String password;
     private List<String> roles;
 
-    public UserDTO(String username, List<String> roles) {
+    public UserDTO(String username, String password, List<String> roles) {
         this.username = username;
         this.roles = roles;
+        this.password = password;
     }
 }

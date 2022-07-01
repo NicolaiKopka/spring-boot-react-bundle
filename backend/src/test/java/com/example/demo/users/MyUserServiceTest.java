@@ -19,7 +19,7 @@ class MyUserServiceTest {
         MyUser userToBeSaved = new MyUser("testUser", "hashedPassword", "hashedPassword");
         userToBeSaved.setRoles(List.of("user"));
 
-        UserDTO returnUser = new UserDTO("testUser", List.of("user"));
+        UserDTO returnUser = new UserDTO("testUser", "hashedPassword", List.of("user"));
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
         Mockito.when(userRepo.findByUsername(user.getUsername())).thenReturn(Optional.empty());
