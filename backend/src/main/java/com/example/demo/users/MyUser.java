@@ -25,8 +25,8 @@ public class MyUser {
         this.checkPassword = checkPassword;
     }
 
-//    public MyUser(String id, String username) {
-//        this.id = id;
-//        this.username = username;
-//    }
+    public MyUser(String id, String username) {
+        this.id = id;
+        this.username = username;
+    }
 }

@@ -23,6 +23,7 @@ export default function InputField(props: AppProps) {
 
     const sendTask = (ev: FormEvent) => {
         ev.preventDefault();
+        //status is defined in backend
         const item: TaskItem = {
             task: inputTask,
             description: inputDescription,

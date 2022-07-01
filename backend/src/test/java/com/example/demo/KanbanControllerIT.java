@@ -9,10 +9,7 @@ import com.example.demo.users.UserDTO;
 import io.jsonwebtoken.Header;
 import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class KanbanControllerIT {
 
     @Autowired
@@ -39,9 +37,8 @@ class KanbanControllerIT {
     }
 
     @Test
-//    @Order(0)
+    @Order(0)
     void shouldRegisterAndLoginUser() {
-        // TODO fails
         //register User
         RegisterData newUser = new RegisterData("testUser", "password", "password");
         ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
@@ -104,6 +101,7 @@ class KanbanControllerIT {
     }
 
     @Test
+    @Order(2)
     void userIsRegisteredAndLoggedInAndDoesAddMoveEditAndDeleteMethods() {
         //register 2 Users
         MyUser newUser1 = new MyUser("testUser", "password", "password");
@@ -124,28 +122,31 @@ class KanbanControllerIT {
         String tokenUser2 = loginResponse2.getBody().getToken();
 
         //add items
+        //added by user 1
         Item item1 = new Item("Project1", "Project1 description", StatusEnum.OPEN);
-        Item item2 = new Item("Project2", "Project2 description", StatusEnum.OPEN);
-        Item item3 = new Item("Project3", "Project3 description", StatusEnum.OPEN);
-
         ResponseEntity<Item> postResponse1 = restTemplate.exchange("/api/kanban",
+                HttpMethod.POST,
+                new HttpEntity<>(item1, createHeader(tokenUser1)),
+                Item.class);
+        Assertions.assertThat(postResponse1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        Item item2 = new Item("Project2", "Project2 description", StatusEnum.OPEN);
+        ResponseEntity<Item> postResponse2 = restTemplate.exchange("/api/kanban",
+                HttpMethod.POST,
+                new HttpEntity<>(item2, createHeader(tokenUser1)),
+                Item.class);
+        Assertions.assertThat(postResponse2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        //added by user2
+        Item item3 = new Item("Project3", "Project3 description", StatusEnum.OPEN);
+        ResponseEntity<Item> postResponse3 = restTemplate.exchange("/api/kanban",
                 HttpMethod.POST,
                 new HttpEntity<>(item3, createHeader(tokenUser2)),
                 Item.class);
         Assertions.assertThat(postResponse1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        ResponseEntity<Item> postResponse2 = restTemplate.exchange("/api/kanban",
-                HttpMethod.POST,
-                new HttpEntity<>(item1, createHeader(tokenUser1)),
-                Item.class);
-        Assertions.assertThat(postResponse2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
-        ResponseEntity<Item> postResponse3 = restTemplate.exchange("/api/kanban",
-                HttpMethod.POST,
-                new HttpEntity<>(item2, createHeader(tokenUser1)),
-                Item.class);
-        Assertions.assertThat(postResponse3.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
+        //from here only user1 continues and should have only 2 elements to work with
+        //get all user1 items
         ResponseEntity<Item[]> getAllResponse = restTemplate.exchange("/api/kanban",
                 HttpMethod.GET,
                 new HttpEntity<>(createHeader(tokenUser1)),
@@ -153,82 +154,56 @@ class KanbanControllerIT {
 
         Assertions.assertThat(getAllResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(getAllResponse.getBody().length).isEqualTo(2);
+
+        //current working item, get by id
+        ResponseEntity<Item> getItemResponse = restTemplate.exchange("/api/kanban/" + postResponse1.getBody().getId(),
+                HttpMethod.GET,
+                new HttpEntity<>(createHeader(tokenUser1)),
+                Item.class);
+        Item workingItem = getItemResponse.getBody();
+
+        //move item1 to In_Progress
+        ResponseEntity<Item> moveToNextResponse = restTemplate.exchange("/api/kanban/next",
+                HttpMethod.PUT,
+                new HttpEntity<>(workingItem, createHeader(tokenUser1)),
+                Item.class);
+        Assertions.assertThat(moveToNextResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(moveToNextResponse.getBody().getStatus()).isEqualTo(StatusEnum.IN_PROGRESS);
+
+        //move item1 back to Open
+        ResponseEntity<Item> moveToPrevResponse = restTemplate.exchange("/api/kanban/prev",
+                HttpMethod.PUT,
+                new HttpEntity<>(workingItem, createHeader(tokenUser1)),
+                Item.class);
+        Assertions.assertThat(moveToPrevResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(moveToPrevResponse.getBody().getStatus()).isEqualTo(StatusEnum.OPEN);
+
+        //edit item1
+        workingItem.setTask("editedTask");
+        workingItem.setDescription("editedDescription");
+        ResponseEntity<Item> editResponse = restTemplate.exchange("/api/kanban",
+                HttpMethod.PUT,
+                new HttpEntity<>(workingItem, createHeader(tokenUser1)),
+                Item.class);
+        Assertions.assertThat(editResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(editResponse.getBody().getTask()).isEqualTo("editedTask");
+        Assertions.assertThat(editResponse.getBody().getDescription()).isEqualTo("editedDescription");
+
+        //delete item1
+        ResponseEntity<Item> deleteResponse = restTemplate.exchange("/api/kanban/" + workingItem.getId(),
+                HttpMethod.DELETE,
+                new HttpEntity<>(createHeader(tokenUser1)),
+                Item.class);
+        Assertions.assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        //get all user1 items, should only be item2
+        ResponseEntity<Item[]> getAllResponseAfterDelete = restTemplate.exchange("/api/kanban",
+                HttpMethod.GET,
+                new HttpEntity<>(createHeader(tokenUser1)),
+                Item[].class);
+        Assertions.assertThat(getAllResponseAfterDelete.getBody().length).isEqualTo(1);
+        Assertions.assertThat(getAllResponseAfterDelete.getBody()[0]).isEqualTo(postResponse2.getBody());
     }
-
-    @Test
-    void shouldChangeStatusOfItemAndReturnCorrectNewStatusPrev() {
-        Item item1 = new Item("Project1", "Project1 description", StatusEnum.OPEN);
-        ResponseEntity<Void> response1 = restTemplate.postForEntity("/api/kanban", item1, Void.class);
-        Assertions.assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        Item initialItem = Objects.requireNonNull(restTemplate.getForEntity("/api/kanban", Item[].class).getBody())[0];
-
-        restTemplate.put("/api/kanban/next", initialItem, Void.class);
-
-        ResponseEntity<Item[]> resultListProgress = restTemplate.getForEntity("/api/kanban", Item[].class);
-        Assertions.assertThat(resultListProgress.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(Objects.requireNonNull(resultListProgress.getBody())[0].getStatus()).isEqualTo(StatusEnum.IN_PROGRESS);
-
-        restTemplate.put("/api/kanban/prev", initialItem, Void.class);
-
-        ResponseEntity<Item[]> resultListDone = restTemplate.getForEntity("/api/kanban", Item[].class);
-        Assertions.assertThat(resultListDone.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(Objects.requireNonNull(resultListDone.getBody())[0].getStatus()).isEqualTo(StatusEnum.OPEN);
-    }
-
-    @Test
-    void shouldAddItemsReturnCorrectItemByIdAndEditThisItem() {
-        Item item1 = new Item("Project1", "Project1 description", StatusEnum.OPEN);
-        Item item2 = new Item("Project2", "Project2 description", StatusEnum.OPEN);
-        restTemplate.postForEntity("/api/kanban", item1, Void.class);
-        restTemplate.postForEntity("/api/kanban", item2, Void.class);
-
-        Item initialItem = Objects.requireNonNull(restTemplate.getForEntity("/api/kanban", Item[].class).getBody())[0];
-
-        ResponseEntity<Item> resultItem = restTemplate.getForEntity("/api/kanban/" + initialItem.getId(), Item.class);
-        Assertions.assertThat(resultItem.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        Objects.requireNonNull(resultItem.getBody()).setTask("Project1Edited");
-
-        restTemplate.put("/api/kanban", resultItem, Void.class);
-
-        ResponseEntity<Item> editedItem = restTemplate.getForEntity("/api/kanban/" + initialItem.getId(), Item.class);
-        Assertions.assertThat(editedItem.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(Objects.requireNonNull(editedItem.getBody()).getTask()).isEqualTo("Project1Edited");
-    }
-
-    @Test
-    void shouldAddAndDeleteItems() {
-        Item item1 = new Item("Project1", "Project1 description", StatusEnum.OPEN);
-        Item item2 = new Item("Project2", "Project2 description", StatusEnum.OPEN);
-        restTemplate.postForEntity("/api/kanban", item1, Void.class);
-        restTemplate.postForEntity("/api/kanban", item2, Void.class);
-
-        ResponseEntity<Item[]> resultListFull = restTemplate.getForEntity("/api/kanban", Item[].class);
-
-        Assertions.assertThat(resultListFull.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(resultListFull.getBody().length).isEqualTo(2);
-
-        Item initialItem = Objects.requireNonNull(restTemplate.getForEntity("/api/kanban", Item[].class).getBody())[0];
-        Item initialItemPos2 = Objects.requireNonNull(restTemplate.getForEntity("/api/kanban", Item[].class).getBody())[1];
-
-        restTemplate.delete("/api/kanban/" + initialItem.getId());
-
-        ResponseEntity<Item[]> resultList = restTemplate.getForEntity("/api/kanban", Item[].class);
-
-        Assertions.assertThat(resultList.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(resultList.getBody()).contains(initialItemPos2);
-
-    }
-
-    @Test
-    void shouldGetMultipleNotFoundForDifferentMethods() {
-
-        ResponseEntity<Item[]> result = restTemplate.getForEntity("/api/kanban/unknown", Item[].class);
-        Assertions.assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-
-    }
-
     private HttpHeaders createHeader(String token) {
         String authValue = "Bearer " + token;
         HttpHeaders header = new HttpHeaders();
