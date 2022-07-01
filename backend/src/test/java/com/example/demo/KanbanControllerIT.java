@@ -1,12 +1,18 @@
 package com.example.demo;
 
+import com.example.demo.users.MyUser;
+import com.example.demo.users.MyUserRepo;
+import com.example.demo.users.UserDTO;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Objects;
 
@@ -15,6 +21,17 @@ class KanbanControllerIT {
 
     @Autowired
     TestRestTemplate restTemplate;
+
+    @Autowired
+    private MyUserRepo myUserRepo;
+
+    @Test
+    void shouldRegisterNewUser() {
+        MyUser newUser = new MyUser("testUser", "password", "password");
+        ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
+        Assertions.assertThat(registerResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    }
 
     @Test
     void shouldAddItemsAndReturnListOfAllItems() {
