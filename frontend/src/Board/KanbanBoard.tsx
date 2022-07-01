@@ -17,6 +17,10 @@ export default function KanbanBoard(props: AppProps) {
     const taskArray = props.taskArray;
     const {t} = useTranslation();
 
+    useEffect(() => {
+        props.onTaskChange()
+    }, [])
+
     const componentsOpen = taskArray.filter(task => task.status === Status.OPEN)
         .map(task => <KanbanCard key={task.id} item={task}
                                  onTaskChange={props.onTaskChange}

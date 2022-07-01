@@ -13,6 +13,7 @@ export interface TaskItem {
     task: string;
     description: string;
     status: Status;
+    userId?: string;
 }
 
 export interface KanbanCardProps {
@@ -22,4 +23,8 @@ export interface KanbanCardProps {
 
 export interface TaskItemArray {
     results: Array<TaskItem>;
+}
+
+export interface LoginResponse {
+    token: string
 }
