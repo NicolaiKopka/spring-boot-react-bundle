@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import lombok.NoArgsConstructor;
+
 public enum StatusEnum {
 
     OPEN,

@@ -70,6 +70,7 @@ public class KanbanService {
 //        }
         MyUser user = myUserRepo.findByUsername(username).orElseThrow();
         item.setUserId(user.getId());
+        item.setStatus(StatusEnum.OPEN);
         return kanbanProjectRepo.save(item);
     }
     public Item deleteItem(String id, String username) {

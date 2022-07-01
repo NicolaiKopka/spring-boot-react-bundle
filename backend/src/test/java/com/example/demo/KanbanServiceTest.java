@@ -1,31 +1,34 @@
 package com.example.demo;
 
+import com.example.demo.users.MyUser;
 import com.example.demo.users.MyUserRepo;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.List;
 import java.util.Optional;
 
 class KanbanServiceTest {
 
-//    @Test
-//    void shouldSucceedOnAddMethodCall() {
-//        MyUser user = new MyUser("1234", "testUser");
-//        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
-//        Item expectedItem = new Item("1234", "Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN, "testUser");
-//
-//        KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
-//
-//        MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
-//        Mockito.when(myUserRepo.findByUsername("testUser")).thenReturn(Optional.of(user));
-//
-//        KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
-//        kanbanService.addItem(item, "testUser");
-//
-//        Mockito.verify(kanbanProjectRepo).save(expectedItem);
-//    }
+    // TODO edge cases not tested yet, Delete not tested
+    @Test
+    void shouldSucceedOnAddMethodCall() {
+        MyUser user = new MyUser("1234", "testUser");
+        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
+        Item expectedItem = new Item(null, "Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN, "1234");
+
+        KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
+
+        MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
+        Mockito.when(myUserRepo.findByUsername("testUser")).thenReturn(Optional.of(user));
+
+        KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
+        kanbanService.addItem(item, "testUser");
+
+        Mockito.verify(kanbanProjectRepo).save(expectedItem);
+    }
 
     @Test
     void shouldReturnCollectionOfAllItems() {
@@ -46,63 +49,74 @@ class KanbanServiceTest {
 
     @Test
     void shouldReturnCorrectItemStatusAfterMovedToNext() {
-        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
+        MyUser user = new MyUser("1234", "testUser");
+        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN, "1234");
+        Item expectedItem = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.IN_PROGRESS, "1234");
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
-        Mockito.when(kanbanProjectRepo.save(item)).thenReturn(item);
+        Mockito.when(kanbanProjectRepo.save(expectedItem)).thenReturn(expectedItem);
+        Mockito.when(kanbanProjectRepo.findById("itemId")).thenReturn(Optional.of(item));
 
         MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
+        Mockito.when(myUserRepo.findByUsername("testUser")).thenReturn(Optional.of(user));
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
 
         kanbanService.moveToNext(item, "testUser");
 
-        Mockito.verify(kanbanProjectRepo).save(item);
-        Assertions.assertThat(item.getStatus()).isEqualTo(StatusEnum.IN_PROGRESS);
+        Mockito.verify(kanbanProjectRepo).save(expectedItem);
     }
 
     @Test
     void shouldReturnCorrectItemStatusAfterMovedToPrev() {
-        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.IN_PROGRESS);
+        MyUser user = new MyUser("1234", "testUser");
+        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.DONE, "1234");
+        Item expectedItem = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.IN_PROGRESS, "1234");
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
-        Mockito.when(kanbanProjectRepo.save(item)).thenReturn(item);
+        Mockito.when(kanbanProjectRepo.save(expectedItem)).thenReturn(expectedItem);
+        Mockito.when(kanbanProjectRepo.findById("itemId")).thenReturn(Optional.of(item));
 
         MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
+        Mockito.when(myUserRepo.findByUsername("testUser")).thenReturn(Optional.of(user));
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
 
         kanbanService.moveToPrev(item, "testUser");
 
-        Mockito.verify(kanbanProjectRepo).save(item);
-        Assertions.assertThat(item.getStatus()).isEqualTo(StatusEnum.OPEN);
+        Mockito.verify(kanbanProjectRepo).save(expectedItem);
     }
 
     @Test
     void shouldReturnItemById() {
-        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
+        MyUser user = new MyUser("1234", "testUser");
+        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.DONE, "1234");
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
-        Mockito.when(kanbanProjectRepo.findById("1234")).thenReturn(Optional.of(item));
+        Mockito.when(kanbanProjectRepo.findById("itemId")).thenReturn(Optional.of(item));
 
         MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
+        Mockito.when(myUserRepo.findByUsername("testUser")).thenReturn(Optional.of(user));
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
-        Assertions.assertThat(kanbanService.getItemById("1234", "testUser")).isEqualTo(item);
+        Assertions.assertThat(kanbanService.getItemById("itemId", "testUser")).isEqualTo(item);
     }
 
     @Test
     void shouldEditItem() {
-        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
+        MyUser user = new MyUser("1234", "testUser");
+        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.DONE, "1234");
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
         Mockito.when(kanbanProjectRepo.save(item)).thenReturn(item);
+        Mockito.when(kanbanProjectRepo.findById("itemId")).thenReturn(Optional.of(item));
 
         MyUserRepo myUserRepo = Mockito.mock(MyUserRepo.class);
+        Mockito.when(myUserRepo.findByUsername("testUser")).thenReturn(Optional.of(user));
 
         KanbanService kanbanService = new KanbanService(kanbanProjectRepo, myUserRepo);
 
-        kanbanService.editItem(item, "testUser");
+        kanbanService.moveToPrev(item, "testUser");
 
         Mockito.verify(kanbanProjectRepo).save(item);
 

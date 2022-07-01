@@ -34,7 +34,6 @@ public class KanbanController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Item> editItem(@RequestBody Item item, Principal principal) {
         try {
             return ResponseEntity.ok(kanbanService.editItem(item, principal.getName()));
@@ -46,7 +45,6 @@ public class KanbanController {
     }
 
     @PutMapping("/next")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Item> moveToNext(@RequestBody Item item, Principal principal) {
         try {
             return ResponseEntity.ok(kanbanService.moveToNext(item, principal.getName()));
@@ -58,7 +56,6 @@ public class KanbanController {
     }
 
     @PutMapping("/prev")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Item> moveToPrev(@RequestBody Item item, Principal principal) {
         try {
             return ResponseEntity.ok(kanbanService.moveToPrev(item, principal.getName()));
