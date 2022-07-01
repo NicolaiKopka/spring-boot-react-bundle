@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.Date;
 
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -13,8 +15,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class JWTService {
+    private String secret;
 
-    private final String secret = "secret-token";
+    public JWTService(@Value("${jwt.service.secret}") String secret) {
+        this.secret = secret;
+    }
 
     public String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()

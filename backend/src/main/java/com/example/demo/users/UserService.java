@@ -32,7 +32,7 @@ public class UserService {
             user.setRoles(List.of("user"));
             userRepo.save(user);
 
-            return new UserDTO(user.getUsername(), user.getRoles());
+            return new UserDTO(user.getUsername(), user.getPassword(), user.getRoles());
 
         } else {
             throw new RuntimeException("Username already in use");

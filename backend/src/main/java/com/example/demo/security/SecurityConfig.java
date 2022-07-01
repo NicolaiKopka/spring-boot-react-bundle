@@ -16,8 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-
     private final MongoUserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
