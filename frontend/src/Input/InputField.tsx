@@ -27,7 +27,7 @@ export default function InputField(props: AppProps) {
         const item: TaskItem = {
             task: inputTask,
             description: inputDescription,
-            status: Status.OPEN
+            status: Status.OPEN,
         }
          addTask(item)
             .then(() => {

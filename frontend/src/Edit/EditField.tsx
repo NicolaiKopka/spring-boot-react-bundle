@@ -31,7 +31,7 @@ export default function EditField(props: AppProps) {
                 setDescription(data.description);
             }).catch(() => {
             props.errorFunction("Could not find task id");
-            navigate("/");
+            navigate("/board");
         })
     }, [])
 
@@ -41,12 +41,13 @@ export default function EditField(props: AppProps) {
             id: item.id,
             task: task,
             description: description,
-            status: item.status
+            status: item.status,
+             userId: item.userId
         }
         editTask(editedTask)
             .then(() => {
                 props.onTaskChange();
-                navigate("/");
+                navigate("/board");
             })
     }
 

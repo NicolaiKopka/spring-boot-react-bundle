@@ -13,14 +13,16 @@ test("that server connection established and items rendered properly", async () 
         id: "01",
         task: "Hallo",
         description: "Task",
-        status: Status.OPEN
+        status: Status.OPEN,
+        userId: "1234"
     }
 
     const task2: TaskItem = {
         id: "02",
         task: "Hallo2",
         description: "Task2",
-        status: Status.OPEN
+        status: Status.OPEN,
+        userId: "1234"
     }
 
     jest.spyOn(axios, "get").mockImplementation((url: string) => {

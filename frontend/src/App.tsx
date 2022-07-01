@@ -7,7 +7,9 @@ import "./App.css"
 import {ErrorBoundary} from "react-error-boundary";
 import axios from "axios";
 import {TaskItem} from "./model";
-import {getAllData} from "./API_services/services";
+import {getAllUserData} from "./API_services/services";
+import LoginPage from "./Login_Register/LoginPage";
+import RegisterPage from "./Login_Register/RegisterPage";
 
 function App() {
 
@@ -15,7 +17,7 @@ function App() {
     const [taskArray, setTaskArray] = useState<Array<TaskItem>>([]);
 
     const fetchTasks = () => {
-            getAllData()
+            getAllUserData()
             .then(data => setTaskArray(data))
             .catch(() => setError("Could not connect to server"))
     }
@@ -33,11 +35,13 @@ function App() {
                 {errorMessage && <div className={"error-message"}>{errorMessage}</div>}
                 <h1>Kanban Board</h1>
                 <Routes>
-                    <Route path="/" element={<>
+                    <Route path="/board" element={<>
                         <InputField errorFunction={setError} onTaskChange={fetchTasks}/>
                         <KanbanBoard taskArray={taskArray} onTaskChange={fetchTasks}/>
                     </> } />
                     <Route path="/:id" element={<EditField onTaskChange={fetchTasks} errorFunction={setError}/>}/>
+                    <Route path="/" element={<LoginPage errorFunction={setError}/>} />
+                    <Route path="/register" element={<RegisterPage errorFunction={setError}/>} />
                 </Routes>
             </div>
         </BrowserRouter>
