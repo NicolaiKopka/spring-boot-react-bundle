@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,8 +20,8 @@ public class KanbanController {
     private final KanbanService kanbanService;
 
     @GetMapping
-    public Collection<Item> getAllItems() {
-        return kanbanService.getAllItems();
+    public Collection<Item> getItemsByUser(Principal principal) {
+        return kanbanService.getItemsByUser(principal.getName());
     }
     //no test yet for Not Found
     @GetMapping("/{id}")
@@ -63,10 +64,12 @@ public class KanbanController {
     }
 
     @PostMapping
+    // TODO ask how to get a response entity created
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Object> addItem(@RequestBody Item item) {
+    public ResponseEntity<Object> addItem(@RequestBody Item item, Principal principal) {
         try {
-            return ResponseEntity.ok(kanbanService.addItem(item));
+            return ResponseEntity.status(HttpStatus.CREATED).body(kanbanService.addItem(item, principal.getName()));
+//            return ResponseEntity.ok(kanbanService.addItem(item));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

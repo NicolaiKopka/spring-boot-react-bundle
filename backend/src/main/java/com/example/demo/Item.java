@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Document(collection = "tasks")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class Item {
     @Id
@@ -20,9 +21,12 @@ public class Item {
     private String description;
     private StatusEnum status;
 
+    private String userId;
+
     public Item(String task, String description, StatusEnum status) {
         this.task = task;
         this.description = description;
         this.status = status;
     }
+
 }

@@ -13,7 +13,7 @@ public class UserService {
 
     private final MyUserRepo userRepo;
     private final PasswordEncoder encoder;
-    public UserDTO registerUser(MyUser user) {
+    public MyUser registerUser(RegisterData user) {
 
         if(user.getUsername().isBlank() || user.getPassword().isBlank() || user.getCheckPassword().isBlank()) {
             throw new RuntimeException("No empty fields allowed");
@@ -26,13 +26,13 @@ public class UserService {
                 throw new RuntimeException("Passwords not matching");
             }
 
+            MyUser userToSave = new MyUser();
             String hashedPW = encoder.encode(user.getPassword());
-            user.setPassword(hashedPW);
-            user.setCheckPassword(hashedPW);
-            user.setRoles(List.of("user"));
-            userRepo.save(user);
-
-            return new UserDTO(user.getUsername(), user.getPassword(), user.getRoles());
+            userToSave.setUsername(user.getUsername());
+            userToSave.setPassword(hashedPW);
+            userToSave.setCheckPassword(hashedPW);
+            userToSave.setRoles(List.of("user"));
+            return userRepo.save(userToSave);
 
         } else {
             throw new RuntimeException("Username already in use");

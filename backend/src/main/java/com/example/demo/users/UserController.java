@@ -13,10 +13,10 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity registerUser(@RequestBody MyUser user) {
+    public ResponseEntity<Object> registerUser(@RequestBody RegisterData user) {
         try {
-            return ResponseEntity.ok(userService.registerUser(user));
+            MyUser returnedUser = userService.registerUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new UserDTO(returnedUser.getUsername(), returnedUser.getRoles()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

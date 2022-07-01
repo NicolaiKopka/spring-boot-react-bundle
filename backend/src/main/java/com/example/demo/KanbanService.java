@@ -1,18 +1,26 @@
 package com.example.demo;
 
+import com.example.demo.users.MyUser;
+import com.example.demo.users.MyUserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Collection;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class KanbanService {
     private final KanbanProjectRepoInterface kanbanProjectRepo;
+    private final MyUserRepo myUserRepo;
 
     public Collection<Item> getAllItems() {
         return kanbanProjectRepo.findAll();
+    }
+
+    public Collection<Item> getItemsByUser(String username) {
+        MyUser user = myUserRepo.findByUsername(username).orElseThrow();
+        return kanbanProjectRepo.findAllByUserId(user.getId());
     }
     public Item getItemById(String id) {
         return kanbanProjectRepo.findById(id).orElseThrow();
@@ -30,7 +38,7 @@ public class KanbanService {
         item.setStatus(newStatus);
         return kanbanProjectRepo.save(item);
     }
-    public Item addItem(Item item) {
+    public Item addItem(Item item, String username) {
         if("".equals(item.getTask()) || "".equals(item.getDescription())) {
             throw new RuntimeException("Empty inputs detected");
         }
@@ -41,6 +49,8 @@ public class KanbanService {
 //                throw new RuntimeException("Identical inputs detected");
 //            }
 //        }
+        MyUser user = myUserRepo.findByUsername(username).orElseThrow();
+        item.setUserId(user.getId());
         return kanbanProjectRepo.save(item);
     }
 
