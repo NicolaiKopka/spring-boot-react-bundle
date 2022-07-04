@@ -69,6 +69,11 @@ export function loginUser(username: string, password: string) {
    }).then((response: AxiosResponse<LoginResponse>) => response.data)
 }
 
+export function loginWithGoogle(googleToken: string) {
+   return axios.post("/api/login/google/" + googleToken)
+       .then((response: AxiosResponse<LoginResponse>) => response.data)
+}
+
 export function registerUser(username: string, password: string, checkPassword: string) {
    return axios.post("/api/user", {
       username: username,
