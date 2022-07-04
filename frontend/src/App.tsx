@@ -10,6 +10,7 @@ import {TaskItem} from "./model";
 import {getAllUserData} from "./API_services/services";
 import LoginPage from "./Login_Register/LoginPage";
 import RegisterPage from "./Login_Register/RegisterPage";
+import Transfer from "./Login_Register/Transfer";
 
 function App() {
 
@@ -22,7 +23,12 @@ function App() {
             .catch(() => setError("Could not connect to server"))
     }
 
-    useEffect(() => fetchTasks(), [])
+
+
+    useEffect(() => {
+
+        fetchTasks()
+    }, [])
 
     useEffect(() => {
         setTimeout(() => setError(""), 3000)
@@ -42,6 +48,7 @@ function App() {
                     <Route path="/:id" element={<EditField onTaskChange={fetchTasks} errorFunction={setError}/>}/>
                     <Route path="/" element={<LoginPage errorFunction={setError}/>} />
                     <Route path="/register" element={<RegisterPage errorFunction={setError}/>} />
+                    <Route path="/transfer/:token" element={<Transfer errorFunction={setError}/>} />
                 </Routes>
             </div>
         </BrowserRouter>

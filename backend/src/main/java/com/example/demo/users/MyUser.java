@@ -17,6 +17,11 @@ public class MyUser {
     private String username;
     private String password;
     private String checkPassword;
+
+    private String googleId;
+
+    private String email;
+
     private List<String> roles;
 
     public MyUser(String username, String password, String checkPassword) {

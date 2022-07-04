@@ -38,4 +38,16 @@ public class UserService {
             throw new RuntimeException("Username already in use");
         }
     }
+
+    public MyUser findOrCreateUser(String email, String userId, String name) {
+        return userRepo.findByUsername(name).orElseGet(() -> {
+            MyUser user = new MyUser();
+            user.setUsername(name);
+            user.setEmail(email);
+            user.setGoogleId(userId);
+            user.setRoles(List.of("user"));
+            return userRepo.save(user);
+        });
+    }
+
 }

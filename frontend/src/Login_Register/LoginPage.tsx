@@ -12,11 +12,27 @@ export default function LoginPage(props: AppProps) {
 
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
+    const [googleToken, setGoogleToken] = useState("")
 
     const nav = useNavigate();
 
+    function handleCallbackResponse(response: any) {
+        setGoogleToken(response.credential)
+        nav("/transfer/" + response.credential)
+    }
+
     useEffect(() => {
-        localStorage.clear()
+        /* global google */
+        // @ts-ignore
+        google.accounts.id.initialize({
+            client_id: "1019999010766-lld8krspracip7l0gp13oi1jr1ifcgpg.apps.googleusercontent.com",
+            callback: handleCallbackResponse
+        })
+        // @ts-ignore
+        google.accounts.id.renderButton(
+            document.getElementById("signInDiv"),
+            { theme: "outline", size: "large"}
+        )
     }, [])
 
     function login(ev: FormEvent) {
@@ -40,6 +56,7 @@ export default function LoginPage(props: AppProps) {
                 </div>
                 <button type={"submit"}>Login</button>
             </form>
+            <div id={"signInDiv"}></div>
             <Link to={"/register"}>Create an account</Link>
         </div>
     )
