@@ -6,6 +6,7 @@ import "./KanbanBoard.css"
 import axios from "axios";
 import {t} from "i18next";
 import {useTranslation} from "react-i18next";
+import {getAllUserData} from "../API_services/services";
 
 interface AppProps {
     taskArray: Array<TaskItem>;
@@ -20,6 +21,7 @@ export default function KanbanBoard(props: AppProps) {
     useEffect(() => {
         props.onTaskChange()
     }, [])
+
 
     const componentsOpen = taskArray.filter(task => task.status === Status.OPEN)
         .map(task => <KanbanCard key={task.id} item={task}

@@ -63,7 +63,7 @@ class KanbanControllerIT {
     @Order(1)
     void shouldAddItemsAndReturnListOfAllItemsWithAdminRights() {
         //register User
-        MyUser newUser = new MyUser("testUser", "password", "password");
+        RegisterData newUser = new RegisterData("testUser", "password", "password");
         ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
         MyUser user = myUserRepo.findByUsername("testUser").orElseThrow();
         user.setRoles(List.of("admin"));
@@ -104,10 +104,10 @@ class KanbanControllerIT {
     @Order(2)
     void userIsRegisteredAndLoggedInAndDoesAddMoveEditAndDeleteMethods() {
         //register 2 Users
-        MyUser newUser1 = new MyUser("testUser", "password", "password");
+        RegisterData newUser1 = new RegisterData("testUser", "password", "password");
         ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser1, UserDTO.class);
 
-        MyUser newUser2 = new MyUser("testUser2", "password", "password");
+        RegisterData newUser2 = new RegisterData("testUser2", "password", "password");
         ResponseEntity<UserDTO> registerResponse2 = restTemplate.postForEntity("/api/user", newUser2, UserDTO.class);
 
         //login 2 users

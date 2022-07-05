@@ -30,7 +30,6 @@ public class UserService {
             String hashedPW = encoder.encode(user.getPassword());
             userToSave.setUsername(user.getUsername());
             userToSave.setPassword(hashedPW);
-            userToSave.setCheckPassword(hashedPW);
             userToSave.setRoles(List.of("user"));
             return userRepo.save(userToSave);
 

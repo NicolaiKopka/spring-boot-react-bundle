@@ -3,6 +3,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {loginUser} from "../API_services/services";
 import {AxiosError} from "axios";
 import App from "../App";
+import {useGoogleOneTapLogin} from "react-google-one-tap-login";
 
 interface AppProps {
     errorFunction: Function
@@ -23,13 +24,11 @@ export default function LoginPage(props: AppProps) {
 
     useEffect(() => {
         /* global google */
-        // @ts-ignore
-        google.accounts.id.initialize({
+        window.google.accounts.id.initialize({
             client_id: "1019999010766-lld8krspracip7l0gp13oi1jr1ifcgpg.apps.googleusercontent.com",
             callback: handleCallbackResponse
         })
-        // @ts-ignore
-        google.accounts.id.renderButton(
+        window.google.accounts.id.renderButton(
             document.getElementById("signInDiv"),
             { theme: "outline", size: "large"}
         )
