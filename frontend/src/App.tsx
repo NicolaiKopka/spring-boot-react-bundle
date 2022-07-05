@@ -17,22 +17,15 @@ function App() {
     const [errorMessage, setError] = useState("")
     const [taskArray, setTaskArray] = useState<Array<TaskItem>>([]);
 
-    const fetchTasks = () => {
-            getAllUserData()
-            .then(data => setTaskArray(data))
-            .catch(() => setError("Could not connect to server"))
-    }
-
-
-
-    useEffect(() => {
-
-        fetchTasks()
-    }, [])
-
     useEffect(() => {
         setTimeout(() => setError(""), 3000)
     }, [errorMessage])
+
+    const fetchTasks = () => {
+        getAllUserData()
+            .then(data => setTaskArray(data))
+            .catch(() => setError("Could not connect to server"))
+    }
 
     return (
 

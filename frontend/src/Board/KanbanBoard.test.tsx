@@ -6,7 +6,6 @@ import App from "../App";
 import KanbanBoard from "./KanbanBoard";
 
 
-
 test("that server connection established and items rendered properly", async () => {
 
     const task1: TaskItem = {
@@ -33,6 +32,9 @@ test("that server connection established and items rendered properly", async () 
         })
     })
 
+    jest.mock("../Login_Register/LoginPage.tsx", () => {
+       return <></>
+    })
     render(<App/>)
 
     await waitFor(() => {

@@ -16,7 +16,6 @@ public class MyUser {
     private String id;
     private String username;
     private String password;
-    private String checkPassword;
 
     private String googleId;
 
@@ -24,10 +23,9 @@ public class MyUser {
 
     private List<String> roles;
 
-    public MyUser(String username, String password, String checkPassword) {
+    public MyUser(String username, String password, String id) {
         this.username = username;
         this.password = password;
-        this.checkPassword = checkPassword;
     }
 
     public MyUser(String id, String username) {

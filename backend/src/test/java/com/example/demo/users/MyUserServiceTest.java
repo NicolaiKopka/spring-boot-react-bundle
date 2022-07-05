@@ -16,7 +16,7 @@ class MyUserServiceTest {
     void shouldSaveUserWithHashedPW() {
         RegisterData registerUser = new RegisterData("testUser", "password", "password");
 
-        MyUser expectedUserToBeSaved = new MyUser("testUser", "hashedPassword", "hashedPassword");
+        MyUser expectedUserToBeSaved = new MyUser("testUser", "hashedPassword", "testUser");
         expectedUserToBeSaved.setRoles(List.of("user"));
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
