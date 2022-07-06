@@ -5,6 +5,17 @@ import {MemoryRouter} from "react-router-dom";
 import App from "../App";
 import KanbanBoard from "./KanbanBoard";
 
+// jest.mock("../Login_Register/LoginPage.tsx", () => <div>FakeLogin</div>)
+
+jest.mock("../Login_Register/LoginPage.tsx", () => {
+    return function DummyLoginPage() {
+        return (
+            <div>
+               FakeLogin
+            </div>
+        );
+    };
+});
 
 test("that server connection established and items rendered properly", async () => {
 
@@ -32,9 +43,18 @@ test("that server connection established and items rendered properly", async () 
         })
     })
 
-    jest.mock("../Login_Register/LoginPage.tsx", () => {
-       return <></>
-    })
+    // const url = location.href;
+    // console.log(url)
+    // global.window = Object.create(window);
+    // Object.defineProperty(window, 'location', {
+    //     value: {
+    //         href: url + "board"
+    //     }
+    // });
+    // console.log(location.href)
+
+    window.history.pushState({}, "", "/board")
+
     render(<App/>)
 
     await waitFor(() => {

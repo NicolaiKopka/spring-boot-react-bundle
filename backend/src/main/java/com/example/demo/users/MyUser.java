@@ -1,5 +1,7 @@
 package com.example.demo.users;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -9,6 +11,8 @@ import java.util.List;
 
 @Document(collection = "users")
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class MyUser {
 
@@ -23,13 +27,4 @@ public class MyUser {
 
     private List<String> roles;
 
-    public MyUser(String username, String password, String id) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public MyUser(String id, String username) {
-        this.id = id;
-        this.username = username;
-    }
 }
