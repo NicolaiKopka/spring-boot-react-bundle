@@ -26,5 +26,4 @@ public class MyUser {
     private String email;
 
     private List<String> roles;
-
 }
