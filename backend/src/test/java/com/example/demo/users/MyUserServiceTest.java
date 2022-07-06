@@ -20,12 +20,10 @@ class MyUserServiceTest {
                 .checkPassword("password")
                 .build();
 
-
         MyUser expectedUserToBeSaved = MyUser.builder().username("testUser")
                 .password("hashedPassword")
                 .roles(List.of("user"))
                 .build();
-
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
         Mockito.when(userRepo.findByUsername(registerUser.getUsername())).thenReturn(Optional.empty());
