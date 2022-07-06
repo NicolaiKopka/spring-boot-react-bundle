@@ -15,9 +15,20 @@ class KanbanServiceTest {
     // TODO edge cases not tested yet, Delete not tested
     @Test
     void shouldSucceedOnAddMethodCall() {
-        MyUser user = new MyUser("1234", "testUser");
-        Item item = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
-        Item expectedItem = new Item(null, "Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN, "1234");
+
+        MyUser user = MyUser.builder().id("1234").username("testUser").build();
+
+
+        Item item = Item.builder().task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.OPEN)
+                .build();
+
+        Item expectedItem = Item.builder().task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.OPEN)
+                .userId("1234")
+                .build();
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
 
@@ -32,8 +43,17 @@ class KanbanServiceTest {
 
     @Test
     void shouldReturnCollectionOfAllItems() {
-        Item item1 = new Item("Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN);
-        Item item2 = new Item("Projekt2", "Beschreibung Projekt 2", StatusEnum.OPEN);
+
+        Item item1 = Item.builder().task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.OPEN)
+                .build();
+
+
+        Item item2 = Item.builder().task("Projekt2")
+                .description("Beschreibung Projekt 2")
+                .status(StatusEnum.OPEN)
+                .build();
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
         Mockito.when(kanbanProjectRepo.findAll())
@@ -49,9 +69,22 @@ class KanbanServiceTest {
 
     @Test
     void shouldReturnCorrectItemStatusAfterMovedToNext() {
-        MyUser user = new MyUser("1234", "testUser");
-        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.OPEN, "1234");
-        Item expectedItem = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.IN_PROGRESS, "1234");
+
+        MyUser user = MyUser.builder().id("1234").username("testUser").build();
+
+
+        Item item = Item.builder().id("itemId").task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.OPEN)
+                .userId("1234")
+                .build();
+
+
+        Item expectedItem = Item.builder().id("itemId").task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.IN_PROGRESS)
+                .userId("1234")
+                .build();
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
         Mockito.when(kanbanProjectRepo.save(expectedItem)).thenReturn(expectedItem);
@@ -69,9 +102,20 @@ class KanbanServiceTest {
 
     @Test
     void shouldReturnCorrectItemStatusAfterMovedToPrev() {
-        MyUser user = new MyUser("1234", "testUser");
-        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.DONE, "1234");
-        Item expectedItem = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.IN_PROGRESS, "1234");
+
+        MyUser user = MyUser.builder().id("1234").username("testUser").build();
+
+        Item item = Item.builder().id("itemId").task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.DONE)
+                .userId("1234")
+                .build();
+
+        Item expectedItem = Item.builder().id("itemId").task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.IN_PROGRESS)
+                .userId("1234")
+                .build();
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
         Mockito.when(kanbanProjectRepo.save(expectedItem)).thenReturn(expectedItem);
@@ -89,8 +133,15 @@ class KanbanServiceTest {
 
     @Test
     void shouldReturnItemById() {
-        MyUser user = new MyUser("1234", "testUser");
-        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.DONE, "1234");
+
+        MyUser user = MyUser.builder().id("1234").username("testUser").build();
+
+        Item item = Item.builder().id("itemId").task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.DONE)
+                .userId("1234")
+                .build();
+
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
         Mockito.when(kanbanProjectRepo.findById("itemId")).thenReturn(Optional.of(item));
@@ -104,8 +155,14 @@ class KanbanServiceTest {
 
     @Test
     void shouldEditItem() {
-        MyUser user = new MyUser("1234", "testUser");
-        Item item = new Item("itemId", "Projekt1", "Beschreibung Projekt 1", StatusEnum.DONE, "1234");
+
+        MyUser user = MyUser.builder().id("1234").username("testUser").build();
+
+        Item item = Item.builder().id("itemId").task("Projekt1")
+                .description("Beschreibung Projekt 1")
+                .status(StatusEnum.DONE)
+                .userId("1234")
+                .build();
 
         KanbanProjectRepoInterface kanbanProjectRepo = Mockito.mock(KanbanProjectRepoInterface.class);
         Mockito.when(kanbanProjectRepo.save(item)).thenReturn(item);

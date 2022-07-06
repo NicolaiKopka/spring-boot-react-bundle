@@ -14,10 +14,18 @@ class MyUserServiceTest {
 
     @Test
     void shouldSaveUserWithHashedPW() {
-        RegisterData registerUser = new RegisterData("testUser", "password", "password");
 
-        MyUser expectedUserToBeSaved = new MyUser("testUser", "hashedPassword", "testUser");
-        expectedUserToBeSaved.setRoles(List.of("user"));
+        RegisterData registerUser = RegisterData.builder().username("testUser")
+                .password("password")
+                .checkPassword("password")
+                .build();
+
+
+        MyUser expectedUserToBeSaved = MyUser.builder().username("testUser")
+                .password("hashedPassword")
+                .roles(List.of("user"))
+                .build();
+
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
         Mockito.when(userRepo.findByUsername(registerUser.getUsername())).thenReturn(Optional.empty());
@@ -33,8 +41,17 @@ class MyUserServiceTest {
 
     @Test
     void shouldFailToSaveIfUserAlreadyExists() {
-        MyUser existingUser = new MyUser("alreadyInUser", "password", "password");
-        RegisterData newUser = new RegisterData("alreadyInUser", "password", "password");
+
+        MyUser existingUser = MyUser.builder().username("alreadyInUser")
+                .password("password")
+                .roles(List.of("user"))
+                .build();
+
+
+        RegisterData newUser = RegisterData.builder().username("alreadyInUser")
+                .password("password")
+                .checkPassword("password")
+                .build();
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
         Mockito.when(userRepo.findByUsername(newUser.getUsername())).thenReturn(Optional.of(existingUser));
@@ -53,7 +70,11 @@ class MyUserServiceTest {
 
     @Test
     void shouldFailToSaveIfPasswordsAreNotMatching() {
-        RegisterData newUser = new RegisterData("alreadyInUse", "password", "falsePassword");
+
+        RegisterData newUser = RegisterData.builder().username("alreadyInUse")
+                .password("password")
+                .checkPassword("falsePassword")
+                .build();
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
         Mockito.when(userRepo.findByUsername(newUser.getUsername())).thenReturn(Optional.empty());
@@ -72,7 +93,11 @@ class MyUserServiceTest {
 
     @Test
     void shouldFailToSaveIfInputFieldsAreEmpty() {
-        RegisterData newUser = new RegisterData("", "password", "password");
+
+        RegisterData newUser = RegisterData.builder().username("")
+                .password("password")
+                .checkPassword("password")
+                .build();
 
         MyUserRepo userRepo = Mockito.mock(MyUserRepo.class);
 

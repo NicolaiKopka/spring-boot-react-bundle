@@ -40,12 +40,18 @@ class KanbanControllerIT {
     @Order(0)
     void shouldRegisterAndLoginUser() {
         //register User
-        RegisterData newUser = new RegisterData("testUser", "password", "password");
+
+        RegisterData newUser = RegisterData.builder().username("testUser")
+                .password("password")
+                .checkPassword("password")
+                .build();
+
         ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
         Assertions.assertThat(registerResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         //login user with wrong credentials
-        LoginData wrongLoginUser = new LoginData("testUser", "wrongPassword");
+
+        LoginData wrongLoginUser = LoginData.builder().username("testUser").password("wrongPassword").build();
 
         ResponseEntity<LoginResponse> failedLoginResponse = restTemplate.postForEntity("/api/login", wrongLoginUser, LoginResponse.class);
         Assertions.assertThat(failedLoginResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -53,7 +59,8 @@ class KanbanControllerIT {
 
         //login user
         // TODO ask why cant login with register user data from above?
-        LoginData loginUser = new LoginData("testUser", "password");
+
+        LoginData loginUser = LoginData.builder().username("testUser").password("password").build();
 
         ResponseEntity<LoginResponse> loginResponse = restTemplate.postForEntity("/api/login", loginUser, LoginResponse.class);
         String token = loginResponse.getBody().getToken();
@@ -63,21 +70,35 @@ class KanbanControllerIT {
     @Order(1)
     void shouldAddItemsAndReturnListOfAllItemsWithAdminRights() {
         //register User
-        RegisterData newUser = new RegisterData("testUser", "password", "password");
-        ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
+
+        RegisterData newUser = RegisterData.builder().username("testUser")
+                .password("password")
+                .checkPassword("password")
+                .build();
+
+        restTemplate.postForEntity("/api/user", newUser, UserDTO.class);
         MyUser user = myUserRepo.findByUsername("testUser").orElseThrow();
         user.setRoles(List.of("admin"));
         myUserRepo.save(user);
 
         //login user
-        LoginData loginUser = new LoginData("testUser", "password");
+
+        LoginData loginUser = LoginData.builder().username("testUser").password("password").build();
 
         ResponseEntity<LoginResponse> loginResponse = restTemplate.postForEntity("/api/login", loginUser, LoginResponse.class);
         String token = loginResponse.getBody().getToken();
 
         //add items
-        Item item1 = new Item("Project1", "Project1 description", StatusEnum.OPEN);
-        Item item2 = new Item("Project2", "Project2 description", StatusEnum.OPEN);
+
+        Item item1 = Item.builder().task("Project1")
+                .description("Project1 description")
+                .status(StatusEnum.OPEN)
+                .build();
+
+        Item item2 = Item.builder().task("Project2")
+                .description("Project2 description")
+                .status(StatusEnum.OPEN)
+                .build();
 
         ResponseEntity<Item> postResponse1 = restTemplate.exchange("/api/kanban",
                 HttpMethod.POST,
@@ -104,33 +125,45 @@ class KanbanControllerIT {
     @Order(2)
     void userIsRegisteredAndLoggedInAndDoesAddMoveEditAndDeleteMethods() {
         //register 2 Users
-        RegisterData newUser1 = new RegisterData("testUser", "password", "password");
-        ResponseEntity<UserDTO> registerResponse = restTemplate.postForEntity("/api/user", newUser1, UserDTO.class);
 
-        RegisterData newUser2 = new RegisterData("testUser2", "password", "password");
-        ResponseEntity<UserDTO> registerResponse2 = restTemplate.postForEntity("/api/user", newUser2, UserDTO.class);
+        RegisterData newUser1 = RegisterData.builder().username("testUser")
+                .password("password")
+                .checkPassword("password")
+                .build();
+        RegisterData newUser2 = RegisterData.builder().username("testUser2")
+                .password("password")
+                .checkPassword("password")
+                .build();
+        restTemplate.postForEntity("/api/user", newUser1, UserDTO.class);
+        restTemplate.postForEntity("/api/user", newUser2, UserDTO.class);
+
+
 
         //login 2 users
-        LoginData loginUser1 = new LoginData("testUser", "password");
+
+        LoginData loginUser1 = LoginData.builder().username("testUser").password("password").build();
 
         ResponseEntity<LoginResponse> loginResponse = restTemplate.postForEntity("/api/login", loginUser1, LoginResponse.class);
         String tokenUser1 = loginResponse.getBody().getToken();
 
-        LoginData loginUser2 = new LoginData("testUser2", "password");
+
+        LoginData loginUser2 = LoginData.builder().username("testUser2").password("password").build();
 
         ResponseEntity<LoginResponse> loginResponse2 = restTemplate.postForEntity("/api/login", loginUser2, LoginResponse.class);
         String tokenUser2 = loginResponse2.getBody().getToken();
 
         //add items
         //added by user 1
-        Item item1 = new Item("Project1", "Project1 description", StatusEnum.OPEN);
+
+        Item item1 = Item.builder().task("Project1").description("Project1 description").status(StatusEnum.OPEN).build();
         ResponseEntity<Item> postResponse1 = restTemplate.exchange("/api/kanban",
                 HttpMethod.POST,
                 new HttpEntity<>(item1, createHeader(tokenUser1)),
                 Item.class);
         Assertions.assertThat(postResponse1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        Item item2 = new Item("Project2", "Project2 description", StatusEnum.OPEN);
+
+        Item item2 = Item.builder().task("Project2").description("Project2 description").status(StatusEnum.OPEN).build();
         ResponseEntity<Item> postResponse2 = restTemplate.exchange("/api/kanban",
                 HttpMethod.POST,
                 new HttpEntity<>(item2, createHeader(tokenUser1)),
@@ -138,7 +171,8 @@ class KanbanControllerIT {
         Assertions.assertThat(postResponse2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         //added by user2
-        Item item3 = new Item("Project3", "Project3 description", StatusEnum.OPEN);
+
+        Item item3 = Item.builder().task("Project3").description("Project3 description").status(StatusEnum.OPEN).build();
         ResponseEntity<Item> postResponse3 = restTemplate.exchange("/api/kanban",
                 HttpMethod.POST,
                 new HttpEntity<>(item3, createHeader(tokenUser2)),

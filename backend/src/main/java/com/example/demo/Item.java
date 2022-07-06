@@ -1,10 +1,7 @@
 package com.example.demo;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +9,7 @@ import java.util.UUID;
 
 @Document(collection = "tasks")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Item {
@@ -20,13 +18,5 @@ public class Item {
     private String task;
     private String description;
     private StatusEnum status;
-
     private String userId;
-
-    public Item(String task, String description, StatusEnum status) {
-        this.task = task;
-        this.description = description;
-        this.status = status;
-    }
-
 }
